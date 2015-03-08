@@ -1,0 +1,14 @@
+{
+	"name": "Sneaky Snake",
+	"version": "1.0.0",
+	"description": "You are a sneaky snake. Eat tasty blueberries to grow.",
+	"launch_path": "/index.html",
+	"icons": {
+		"512": "/img/icon-512.png",
+		"128": "/img/icon-128.png"
+	},
+	"developer": {
+		"name": "Costava",
+		"url": "https://github.com/Costava"
+	}
+}
