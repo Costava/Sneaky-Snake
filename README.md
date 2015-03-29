@@ -1,7 +1,7 @@
 # Sneaky Snake
 You are a sneaky snake. Eat tasty blueberries to grow. Watch out for yourself and the edges.
 
-###[Play online](https://costava.github.io/Sneaky-Snake/)
+###[Play online](https://costava.github.io/Sneaky-Snake/dist/)
 
 ![Sneaky Snake](https://i.imgur.com/yQfgl03.png)
 
