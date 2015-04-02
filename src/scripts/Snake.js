@@ -84,13 +84,13 @@ Snake.prototype.draw = function(c, ctx) {
 	var self = this;
 
 	this.segments.forEach(function(value, index, array) {
-		var x = value.x * c.width / gridWidth;
-		var y = value.y * c.width / gridWidth;
+		var x = value.x * unit;
+		var y = value.y * unit;
 
 		//console.log(value);
 
 		ctx.beginPath();
-		ctx.arc(x + radius, y + radius, snakeWidth / 2 - 0.5, 0, Math.PI * 2, true);
+		ctx.arc(x + radius, y + radius, (snakeWidth / 2) - 0.25, 0, Math.PI * 2, true);
 
 		//console.log("this:", this);
 
@@ -110,8 +110,8 @@ Snake.prototype.draw = function(c, ctx) {
 			x += radius;
 			y += radius;
 
-			var endX = array[index + 1].x * c.width / gridWidth;
-			var endY = array[index + 1].y * c.width / gridWidth;
+			var endX = array[index + 1].x * unit;
+			var endY = array[index + 1].y * unit;
 
 			endX += radius;
 			endY += radius;

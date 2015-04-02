@@ -55,7 +55,6 @@ Timestepper.prototype.Start = function() {
 		}
 	}
 	else {
-		// TODO: .warn? .error?
 		console.log("Timestepper already running. state:", this.state);
 	}
 };
@@ -68,7 +67,6 @@ Timestepper.prototype.Pause = function() {
 		this.state = 'paused';
 	}
 	else {
-		// TODO: .warn? .error?
 		console.log("Timestepper will not pause because not currently running. state:", this.state);
 	}
 };
