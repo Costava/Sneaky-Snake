@@ -200,7 +200,7 @@ function clearCoordinates(c, ctx, dim1, dim2, coords) {
 
         //console.log(value);
 
-        //ctx.fillStyle = '#28991D';
+        //ctx.fillStyle = '#28991d';
 
         ctx.clearRect(x-.5, y-.5, c.width / grid.width + 1, c.height / grid.height + 1);
         //console.log("segment painted");
@@ -223,7 +223,7 @@ function drawColliders(c, ctx, dim1, dim2, colliders) {
 
     		ctx.beginPath();
     		ctx.arc(x + radius, y + radius, radius * 0.85, 0, Math.PI * 2, true);
-    		ctx.fillStyle = '#1700CC';
+    		ctx.fillStyle = '#1700cc';
     		ctx.fill();
     		ctx.closePath();
         }
@@ -289,10 +289,20 @@ function getRandomOpenSpot(grid, occupiedSpots) {
  * @returns {Number} keyCode
  */
 function getKeyCode(e) {
-    var keyCode = (e.keyCode)? e.keyCode : e.which;
+    //var keyCode = (e.keyCode)? e.keyCode : e.which;
 
-    return keyCode;
+    return e.which;
 }
+// Chrome and IE give same e.which
+
+// helpful for key debugging
+// function getKeyCode(e) {
+//     var keyCode = (e.keyCode)? e.keyCode : e.which;
+//
+//     return keyCode;
+// }
+//
+// document.addEventListener('keydown', function(e) { console.log(e.keyCode, e.which, getKeyCode(e)); });
 
 // 70 slashes
 //////////////////////////////////////////////////////////////////////
@@ -303,6 +313,8 @@ var colliders = [];
 var gui = new GUIManager(200, 800, document.getElementById('gui'));
 
 var stepper = new Timestepper();
+
+stepper.dt = 400;
 
 var keyboardControls = function(event) {
     var keyCode = getKeyCode(event);
@@ -315,23 +327,29 @@ var keyboardControls = function(event) {
 
     // var grid = getGrid(c, playFieldShortDim, playFieldLongDim);
 
-    if (keyCode === 119 || keyCode === 38) {// w or up arrow
-        // playInput('Up', snake);
+    /*FFChIE*/
+    if (keyCode == 87 ||/*w*/
+        keyCode == 38/*up arrow*/) {
+
         snake.input('Up');
     }
-    else if (keyCode === 97 || keyCode === 37) {// a or left arrow
-        // playInput('Left', snake);
+    else if (keyCode == 65 ||/*a*/
+             keyCode == 37/*left arrow*/) {
+
         snake.input('Left');
     }
-    else if (keyCode === 115 || keyCode === 40) {// s or down arrow
-        // playInput('Down', snake);
+    else if (keyCode == 83 ||/*s*/
+             keyCode == 40/*down arrow*/) {
+
         snake.input('Down');
     }
-    else if (keyCode === 100 || keyCode === 39) {// d or right arrow
-        // playInput('Right', snake);
+    else if (keyCode == 68 ||/*d*/
+             keyCode == 39/*right arrow*/) {
+
         snake.input('Right');
     }
-    else if (keyCode === 27) {// escape key
+    else if (keyCode == 27 ||/*escape key*/
+             keyCode == 80/*p*/) {
         // Pause
         console.log("Pause");
         gui.show('pause');
@@ -436,36 +454,58 @@ var mouseAndTouchEnd = function(event) {
 };
 
 var bindControls = function() {
-    document.addEventListener('keypress', keyboardControls);
+    document.addEventListener('keydown', keyboardControls);
 
-    c.addEventListener('mousedown', mouseAndTouchStart);
-    c.addEventListener('touchstart', mouseAndTouchStart);
+    document.addEventListener('mousedown', mouseAndTouchStart);
+    document.addEventListener('touchstart', mouseAndTouchStart);
 
-    c.addEventListener('mouseup', mouseAndTouchEnd);
-    c.addEventListener('touchend', mouseAndTouchEnd);
+    document.addEventListener('mouseup', mouseAndTouchEnd);
+    document.addEventListener('touchend', mouseAndTouchEnd);
 };
 
 var unbindControls = function() {
-    document.removeEventListener('keypress', keyboardControls);
+    document.removeEventListener('keydown', keyboardControls);
 
-    c.removeEventListener('mousedown', mouseAndTouchStart);
-    c.removeEventListener('touchstart', mouseAndTouchStart);
+    document.removeEventListener('mousedown', mouseAndTouchStart);
+    document.removeEventListener('touchstart', mouseAndTouchStart);
 
-    c.removeEventListener('mouseup', mouseAndTouchEnd);
-    c.removeEventListener('touchend', mouseAndTouchEnd);
+    document.removeEventListener('mouseup', mouseAndTouchEnd);
+    document.removeEventListener('touchend', mouseAndTouchEnd);
 };
+
+function preventDefault(event) {
+    event.preventDefault();
+}
 
 function startNewGame() {
     gui.hide();
+
+    document.getElementById('gui').style.background = "";
+
+    ctx.clearRect(0, 0, c.width, c.height);
 
     var grid = getGrid(c, playFieldShortDim, playFieldLongDim);
 
     var orientation;
     if (grid.width >= grid.height) {
         orientation = 'landscape';
+
+        c.style.background = "repeating-linear-gradient(" +
+			"0deg," +
+			"#28991d," +
+			"#28991d 10%," +
+			"#17880c 10%," +
+			"#17880c 20%";
     }
     else {
         orientation = 'portrait';
+
+        c.style.background = "repeating-linear-gradient(" +
+			"90deg," +
+			"#28991d," +
+			"#28991d 10%," +
+			"#17880c 10%," +
+			"#17880c 20%";
     }
 
     function maximizeGameCanvas() {
@@ -474,6 +514,20 @@ function startNewGame() {
     }
 
     window.addEventListener('resize', maximizeGameCanvas);
+
+    window.addEventListener('touchmove', preventDefault);
+
+    function gameEndCleanup() {
+        stepper.Pause();
+
+        unbindControls();
+
+        window.removeEventListener('resize', maximizeGameCanvas);
+
+        window.removeEventListener('touchmove', preventDefault);
+
+        document.getElementById('gui').style.background = 'rgba(50, 50, 50, 0.6)';
+    }
 
     colliders = [];
 
@@ -521,11 +575,7 @@ function startNewGame() {
                 // Win
                 console.log("Win");
 
-                stepper.Pause();
-
-                unbindControls();
-
-                window.removeEventListener('resize', maximizeGameCanvas);
+                gameEndCleanup();
 
                 gui.show('win');
             }
@@ -543,11 +593,7 @@ function startNewGame() {
         // Die
         console.log("Die");
 
-        stepper.Pause();
-
-        unbindControls();
-
-        window.removeEventListener('resize', maximizeGameCanvas);
+        gameEndCleanup();
 
         gui.show("gameOver");
     };
@@ -570,14 +616,32 @@ function startNewGame() {
     stepper.Start();
 }
 
+function asideControls(event) {
+    var keyCode = getKeyCode(event);
+    // console.log(keyCode);
+
+    /*FFChIE*/
+    if (keyCode == 66 ||/*b*/
+        keyCode == 27 ||/*esc*/
+        keyCode == 13/*enter*/) {
+        gui.show('main');
+    }
+}
+
 gui.states.about = '' +
-    '<div class="text-info">Sneaky Snake | Author: Costava | Version 1.0.0 | <a href="https://github.com/Costava/Sneaky-Snake" target="_blank">View source on Github</a></div>' +
+    '<div class="about-info-wrapper">' +
+        '<div class="text-info"><strong>Sneaky Snake</strong><br>Author: <a href="https://github.com/Costava" target="_blank">Costava</a><br>Version 1.1.0<br><a href="https://github.com/Costava/Sneaky-Snake" target="_blank">View source on Github</a></div>' +
+    '</div>' +
     '<button class="button" id="about-back">Back</button>';
 gui.toCallbacks.about = function(oldState) {
     document.getElementById('about-back').addEventListener('click', showMain);
+
+    document.addEventListener('keydown', asideControls);
 };
 gui.fromCallbacks.about = function(state) {
     document.getElementById('about-back').removeEventListener('click', showMain);
+
+    document.removeEventListener('keydown', asideControls);
 };
 
 function showAbout() {
@@ -585,7 +649,7 @@ function showAbout() {
 }
 
 gui.states.howToPlay = '' +
-    '<div class="text-info" id="how-to-play"></div>' +
+    '<div class="text-info how-to-play" id="how-to-play"></div>' +
     '<button class="button" id="how-to-play-back">Back</button>';
 gui.toCallbacks.howToPlay = function(oldState) {
     var info = "You are a sneaky snake. Eat tasty blueberries to grow. Watch out for yourself and the edges.";
@@ -593,24 +657,48 @@ gui.toCallbacks.howToPlay = function(oldState) {
     var controls = "";
 
     if (Modernizr.touchevents) {
-        controls = "Swipe to change direction. Tap to move forward. Swipe from any corner to the opposite corner to pause.";
+        controls = "<br><br>Swipe to change direction. Tap to move forward. Swipe from any corner to the opposite corner to pause.";
     }
     else {
-        controls = "Use WASD or arrow keys to move. Press the escape key to pause/resume.";
+        controls = "<ul>" +
+                "<li>Use <kbd>WASD</kbd> or arrow keys to move.</li>" +
+                "<li>Pause: <kbd>esc</kbd> / <kbd>p</kbd></li>" +
+                "<li>Resume: <kbd>esc</kbd> / <kbd>p</kbd> / <kbd>r</kbd> / <kbd>enter</kbd></li>" +
+            "</ul>" +
+            "Buttons can be activated by pressing their underlined letter.";
     }
 
-    var text = "" + info + " " + controls;
+    var text = "" + info + controls;
 
     document.getElementById("how-to-play").innerHTML = text;
 
     document.getElementById('how-to-play-back').addEventListener('click', showMain);
+
+    document.addEventListener('keydown', asideControls);
 };
 gui.fromCallbacks.howToPlay = function(state) {
     document.getElementById('how-to-play-back').removeEventListener('click', showMain);
+
+    document.removeEventListener('keydown', asideControls);
 };
 
 function showHowToPlay() {
     gui.show("howToPlay");
+}
+
+function mainMenuControls(event) {
+    var keyCode = getKeyCode(event);
+    // console.log(keyCode);
+
+    if (keyCode == 65/*a*/) {
+        document.getElementById('about').click();
+    }
+    else if (keyCode == 72/*h*/) {
+        document.getElementById('how-to-play').click();
+    }
+    else if (keyCode == 78/*n*/) {
+        document.getElementById('new-game').click();
+    }
 }
 
 gui.states.main = '' +
@@ -626,12 +714,24 @@ gui.states.main = '' +
 gui.toCallbacks.main = function(oldState) {
     console.log("Show main menu gui");
 
-    window.addEventListener('resize', resizeGameCanvas);
-    resizeGameCanvas();//inital run
+    c.style.background = "";
+
+    document.getElementById('gui').style.background = "";
+
+    // console.log("coming from",oldState);
+
+    if (oldState != 'about' && oldState != "howToPlay") {
+        // console.log("add");
+
+        window.addEventListener('resize', resizeGameCanvas);
+        resizeGameCanvas();//inital run
+    }
 
     document.getElementById('new-game').addEventListener('click', startNewGame);
     document.getElementById('about').addEventListener('click', showAbout);
     document.getElementById('how-to-play').addEventListener('click', showHowToPlay);
+
+    document.addEventListener('keydown', mainMenuControls);
 
     localforage.getItem('highScore', function(err, value) {
         console.log("High score loaded");
@@ -643,11 +743,18 @@ gui.toCallbacks.main = function(oldState) {
     });
 };
 gui.fromCallbacks.main = function(state) {
-    window.removeEventListener('resize', resizeGameCanvas);
+    // console.log("going to",state);
+
+    if (state != 'about' && state != "howToPlay") {
+        // console.log("remove");
+        window.removeEventListener('resize', resizeGameCanvas);
+    }
 
     document.getElementById('new-game').removeEventListener('click', startNewGame);
     document.getElementById('about').removeEventListener('click', showAbout);
     document.getElementById('how-to-play').removeEventListener('click', showHowToPlay);
+
+    document.removeEventListener('keydown', mainMenuControls);
 };
 
 function showMain() {
@@ -672,7 +779,12 @@ function pauseControls(event) {
     var keyCode = getKeyCode(event);
     // console.log(keyCode);
 
-    if (keyCode === 27/*escape*/ || keyCode === 13/*enter*/) {
+    /*FFChIE*/
+    // if press escape or p or r or enter, then resume
+    if (keyCode == 27 ||/*esc*/
+        keyCode == 80 ||/*p*/
+        keyCode == 82 ||/*r*/
+        keyCode == 13/*enter*/) {
         resume();
     }
 }
@@ -687,21 +799,41 @@ gui.toCallbacks.pause = function(oldState) {
 
     unbindControls();
 
+    document.getElementById('gui').style.background = 'rgba(50, 50, 50, 0.6)';
+
     document.getElementById('score').innerHTML = calculateScore();
 
-    document.getElementById('resume').addEventListener('mouseup', resume);
-    document.addEventListener('keypress', pauseControls);
+    document.getElementById('resume').addEventListener('click', resume);
+    document.addEventListener('keydown', pauseControls);
 };
 gui.fromCallbacks.pause = function(state) {
-    document.getElementById('resume').removeEventListener('mouseup', resume);
-    document.removeEventListener('keypress', pauseControls);
+    document.getElementById('gui').style.background = "";
+
+    document.getElementById('resume').removeEventListener('click', resume);
+    document.removeEventListener('keydown', pauseControls);
 };
+
+function endGameControls(event) {
+    var keyCode = getKeyCode(event);
+    // console.log(keyCode);
+
+    /*FFChIE*/
+    if (keyCode == 66 ||/*b*/
+        keyCode == 27 ||/*esc*/
+        keyCode == 13/*enter*/) {
+        gui.show('main');
+    }
+    else if (keyCode == 78/*n*/) {
+        document.getElementById('start-new').click();
+    }
+}
 
 gui.states.gameOver = '' +
 '<div class="text-info">You are dead!</div>' +
     '<div class="scoreHolder text-info">' +
         'Score: <span id="score">...</span>' +
     '</div>' +
+    '<button class="button" id="start-new">New Game</button>' +
     '<button class="button" id="game-over-back">Back to Main Menu</button>';
 gui.toCallbacks.gameOver = function(oldState) {
     var gameScore = calculateScore();
@@ -710,18 +842,27 @@ gui.toCallbacks.gameOver = function(oldState) {
 
     document.getElementById('game-over-back').addEventListener('click', showMain);
 
+    document.addEventListener('keydown', endGameControls);
+
+    document.getElementById('start-new').addEventListener('click', startNewGame);
+
     localforage.getItem('highScore', function(err, value) {
         if (gameScore > value) {
             localforage.setItem('highScore', gameScore, function() {
                 console.log("New high score:", gameScore);
 
-                alert("New high score: " + gameScore + "!");
+                document.getElementsByClassName('scoreHolder')[0].innerHTML = "New High Score: " + gameScore + "!";
+                // alert("New high score: " + gameScore + "!");
             });
         }
     });
 };
 gui.fromCallbacks.gameOver = function(state) {
     document.getElementById('game-over-back').removeEventListener('click', showMain);
+
+    document.removeEventListener('keydown', endGameControls);
+
+    document.getElementById('start-new').removeEventListener('click', startNewGame);
 };
 
 gui.states.win = '' +
@@ -729,6 +870,7 @@ gui.states.win = '' +
     '<div class="scoreHolder text-info">' +
         'Score: <span id="score">...</span>' +
     '</div>' +
+    '<button class="button" id="start-new">New Game</button>' +
     '<button class="button" id="win-back">Back to Main Menu</button>';
 gui.toCallbacks.win = function(oldState) {
     var gameScore = calculateScore();
@@ -737,18 +879,26 @@ gui.toCallbacks.win = function(oldState) {
 
     document.getElementById('win-back').addEventListener('click', showMain);
 
+    document.addEventListener('keydown', endGameControls);
+
+    document.getElementById('start-new').addEventListener('click', startNewGame);
+
     localforage.getItem('highScore', function(err, value) {
         if (gameScore > value) {
             localforage.setItem('highScore', gameScore, function() {
                 console.log("New high score:", gameScore);
-
-                alert("New high score: " + gameScore + "!");
+                document.getElementsByClassName('scoreHolder')[0].innerHTML = "New High Score: " + gameScore + "!";
+                // alert("New high score: " + gameScore + "!");
             });
         }
     });
 };
 gui.fromCallbacks.win = function(state) {
     document.getElementById('win-back').removeEventListener('click', showMain);
+
+    document.removeEventListener('keydown', endGameControls);
+
+    document.getElementById('start-new').removeEventListener('click', startNewGame);
 };
 
 //////////////////////////////////////////////////////////////////////
