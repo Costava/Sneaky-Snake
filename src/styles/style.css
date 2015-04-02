@@ -13,13 +13,9 @@ html, body {
 }
 
 body {
-	background: #042B00;
+	background: #042b00;
 
 	font-family: Arial, sans-serif;
-}
-
-a {
-	color: inherit;
 }
 
 .game-canvas {
@@ -30,11 +26,11 @@ a {
 
 	z-index: 400;
 
-	/*background: #28991D;*/
+	/*background: #28991d;*/
 	/*background: repeating-linear-gradient(
 		0deg,
-		#28991D,
-		#28991D 5%,
+		#28991d,
+		#28991d 5%,
 		#15770A 5%,
 		#15770A 10%
 	);*/
@@ -48,10 +44,10 @@ a {
 	.game-canvas {
 		background: repeating-linear-gradient(
 			0deg,
-			#28991D,
-			#28991D 10%,
-			#17880C 10%,
-			#17880C 20%
+			#28991d,
+			#28991d 10%,
+			#17880c 10%,
+			#17880c 20%
 		);
 	}
 }
@@ -60,34 +56,112 @@ a {
 	.game-canvas {
 		background: repeating-linear-gradient(
 			90deg,
-			#28991D,
-			#28991D 10%,
-			#17880C 10%,
-			#17880C 20%
+			#28991d,
+			#28991d 10%,
+			#17880c 10%,
+			#17880c 20%
 		);
 	}
 }
 
 #gui {
 	position: absolute;
-	width: 100%;
-	height: 100%;
+
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	color: #fff;
 
 	text-align: center;
 
-	color: #C9FF04;
+	padding: 20px;
+
+	overflow: auto;
+}
+
+@media not handheld {
+	.button:first-letter {
+		text-decoration: underline;
+	}
+}
+
+a {
+	color: inherit;
+
+	transition: color;
+	transition-duration: 0.5s;
+}
+
+a:hover {
+	color: #c9ff04;
+}
+
+.about-info-wrapper {
+	display: flex;
+	justify-content: center;
+	text-align: left;
+}
+
+.how-to-play {
+	text-align: left;
+}
+
+@media (orientation: landscape) {
+	.how-to-play {
+		margin-left: 50%;
+		transform: translate(-50%, 0);
+	}
+}
+
+kbd {
+	padding: 0.1em 0.3em;
+	background: #eee;
+	border-radius: 5px;
+	border: 2px solid #aaa;
+	box-shadow: inset 0 0 5px 2px #fff;
+
+	font-size: 0.8em;
+	color: #000;
 }
 
 .main-menu-title {
 	font-size: 64px;
 
+	margin: 0 0 12px 0;
+
 	text-shadow: 0px 0px 10px #000;
 }
 
-.button, .text-info {
-	font-size: 32px;
+li {
+	margin: 0.2em 0;
 }
 
-.text-info {
-	text-shadow: 0px 0px 5px #000;
+.button {
+	background: rgba(70, 70, 70, 0.1);
+
+	transition: background, border;
+	transition-duration: 0.5s;
+
+	border: 3px solid #fff;
+	border-radius: 8px;
+
+	padding: 8px 12px;
+	margin: 12px 4px 0 4px;
+
+	color: #fff;
+}
+
+.button:hover {
+	background: rgba(50, 50, 50, 0.2);
+
+	border: 3px solid #c9ff04;
+
+	cursor: pointer;
+	cursor: hand;
+}
+
+.button, .text-info {
+	font-size: 24px;
 }
