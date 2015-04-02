@@ -1,6 +1,6 @@
 {
 	"name": "Sneaky Snake",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "You are a sneaky snake. Eat tasty blueberries to grow.",
 	"launch_path": "/index.html",
 	"icons": {
