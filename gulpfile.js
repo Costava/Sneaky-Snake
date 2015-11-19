@@ -57,4 +57,4 @@ gulp.task('browserify-bundle', function() {
 			basename: 'bundle'
 		}))
 		.pipe(gulp.dest('./dist/js'));
-})
+});
